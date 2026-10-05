@@ -25,7 +25,7 @@
     "clean": "node -e \"require('fs').rmSync('dist',{recursive:true,force:true})\""
   },
   "dependencies": {
-    "commander": "^14.0.0",
+    "commander": "^15.0.0",
     "@odometryscope/core": "0.1.0",
     "@odometryscope/skills": "0.1.0",
     "@odometryscope/plugins": "0.1.0",
