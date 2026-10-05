@@ -128,7 +128,7 @@ jobs:
       - run: npm run build
       - name: Build the web app
         run: npm run build --workspace @odometryscope/web
-      - uses: actions/upload-artifact@6f51ac03b9356f520e9adb1b1b7802705f340c2b # v4.6.2
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v4.6.2
         with:
           name: web-build
           path: apps/web/.next
