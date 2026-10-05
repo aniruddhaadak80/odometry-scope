@@ -6,3 +6,6 @@ coverage
 package-lock.json
 services/engine/.venv
 CHANGELOG.md
+# Deployment tooling writes this locally; it is gitignored but prettier does not read
+# .gitignore, so without this `npm run format:check` fails on a file nobody committed.
+.vercel
