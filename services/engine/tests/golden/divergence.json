@@ -1,0 +1,9 @@
+{
+  "boundRatio": 338.2670406520908,
+  "exceeded": true,
+  "firstExceedance": 1,
+  "maxBound": 0.001714621675472464,
+  "maxObserved": 0.5800000000000001,
+  "rmsObserved": 0.3435112807463534,
+  "stepCount": 29
+}

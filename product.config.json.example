@@ -1,0 +1,9 @@
+{
+  "productEnv": "development",
+  "dataDir": ".data",
+  "engine": {
+    "python": "python",
+    "timeoutMs": 10000
+  },
+  "logLevel": "info"
+}

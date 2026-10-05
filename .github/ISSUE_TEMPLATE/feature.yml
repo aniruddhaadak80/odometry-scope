@@ -1,0 +1,41 @@
+name: Feature request
+description: Suggest a capability
+title: '[feat] '
+labels: [enhancement]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Before filing: read the **footprint ladder** in AGENTS.md and say which rung your
+        change belongs on. Most requests are satisfied by extending an existing tool or by
+        adding a plugin, and neither needs a core change.
+  - type: textarea
+    id: problem
+    attributes:
+      label: The problem
+      description: What are you trying to do that is hard or impossible today?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed change
+    validations:
+      required: true
+  - type: dropdown
+    id: rung
+    attributes:
+      label: Footprint ladder rung
+      options:
+        - 1 — extend an existing tool
+        - 2 — CLI command + skill
+        - 3 — service-gated tool
+        - 4 — plugin
+        - 5 — MCP server tool
+        - 6 — new core tool
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives you considered

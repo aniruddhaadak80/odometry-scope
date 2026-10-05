@@ -1,0 +1,11 @@
+Odometry Scope
+Copyright 2026 aniruddhaadak80
+
+This product includes software developed by the Odometry Scope contributors.
+
+Third-party dependencies retain their own licenses. Run `npm run licenses` to
+regenerate THIRD_PARTY_NOTICES.md from the installed tree.
+
+Portions of the architectural conventions in this repository were informed by
+publicly documented patterns; see docs/adr/ for the decisions actually taken and
+their rationale. No third-party source code was copied.

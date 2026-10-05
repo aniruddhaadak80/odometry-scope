@@ -1,0 +1,30 @@
+name: CodeQL
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    - cron: '17 4 * * 1'
+
+permissions:
+  contents: read
+
+jobs:
+  analyze:
+    name: CodeQL
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [javascript-typescript, python]
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: github/codeql-action/init@6aaf8b9cab544d3489d0d5f2d5d1d0a4ff69c5b # v3.28.9
+        with:
+          languages: ${{ matrix.language }}
+      - uses: github/codeql-action/autobuild@6aaf8b9cab544d3489d0d5f2d5d1d0a4ff69c5b # v3.28.9
+      - uses: github/codeql-action/analyze@6aaf8b9cab544d3489d0d5f2d5d1d0a4ff69c5b # v3.28.9

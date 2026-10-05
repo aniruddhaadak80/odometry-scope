@@ -1,0 +1,11 @@
+{
+  "name": "tape-leak-detector",
+  "version": "0.1.0",
+  "description": "Flags wheel-encoder channels that under-report distance against ground truth.",
+  "enabled": true,
+  "priority": 70,
+  "capabilities": ["diagnostics:tape-leak"],
+  "engines": {
+    "@odometryscope/plugins": "0.1.0"
+  }
+}

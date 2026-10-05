@@ -1,0 +1,8 @@
+node_modules
+dist
+.next
+coverage
+.turbo
+package-lock.json
+services/engine/.venv
+CHANGELOG.md

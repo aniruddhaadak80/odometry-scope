@@ -1,0 +1,11 @@
+{
+  "name": "rate-bias-linter",
+  "version": "0.1.0",
+  "description": "Warns when a run's stated sensor fusion weights cannot support an ablation.",
+  "enabled": true,
+  "priority": 55,
+  "capabilities": ["diagnostics:rate-bias"],
+  "engines": {
+    "@odometryscope/plugins": "0.1.0"
+  }
+}

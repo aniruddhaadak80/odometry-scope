@@ -1,0 +1,116 @@
+/*
+ * THE SINGLE SOURCE OF COLOUR TRUTH.
+ *
+ * check:theme-tokens fails the build if a raw hex/rgb/hsl literal appears in any other
+ * file under apps/web. If you need a new colour, add it here — nowhere else. This is what
+ * stops a codebase drifting into forty slightly different greys.
+ *
+ * The identity for this product is mono + a single accent. Almost everything on screen is a
+ * near-neutral; exactly one hue carries meaning. The semantic status tones below are the only
+ * other colours, and they are reserved for the verdict and for escaped samples — they never
+ * decorate.
+ *
+ * Fonts are named, not fetched. `Public Sans` and `Roboto Mono` are the intended pairing; the
+ * stack falls back to the platform's own sans and mono when they are not installed, so the
+ * app renders correctly offline and in a headless container. Nothing is fetched at build time.
+ */
+
+:root {
+  /* surfaces — a cool near-neutral ramp, warm enough to read as paper, not glass */
+  --bg: #fbfbfa;
+  --bg-elevated: #ffffff;
+  --bg-sunken: #f2f2f0;
+
+  /* content */
+  --fg: #14161a;
+  --fg-muted: #4a4f57;
+  --fg-subtle: #767c85;
+
+  /* lines */
+  --border: #e2e2df;
+  --border-strong: #c6c6c2;
+
+  /* the single accent: instrument cyan */
+  --accent: #0f6f7d;
+  --accent-hover: #0c5b67;
+  --accent-fg: #ffffff;
+  --accent-subtle: #e2f1f3;
+
+  /* semantic status — reserved, never decorative */
+  --ok: #2f6b3c;
+  --ok-subtle: #e9f2ea;
+  --warn: #8a5a10;
+  --warn-subtle: #f7efe1;
+  --danger: #9c2f2f;
+  --danger-subtle: #f7e9e9;
+  --info: #0f6f7d;
+  --info-subtle: #e2f1f3;
+
+  /* spacing — spacious */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.75rem;
+  --space-6: 2.75rem;
+  --space-7: 4rem;
+  --space-8: 6rem;
+
+  /* radii — sharp */
+  --radius-1: 0px;
+  --radius-2: 2px;
+  --radius-3: 2px;
+  --radius-4: 3px;
+
+  /* elevation — minimal; borders carry structure, not shadows */
+  --shadow-1: 0 1px 0 0 rgba(20, 22, 26, 0.04);
+  --shadow-2: 0 2px 6px 0 rgba(20, 22, 26, 0.06);
+  --shadow-3: 0 8px 20px 0 rgba(20, 22, 26, 0.08);
+
+  /* type */
+  --font-sans: 'Public Sans', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'Roboto Mono', ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace;
+  --text-xs: 0.75rem;
+  --text-sm: 0.8125rem;
+  --text-md: 0.9375rem;
+  --text-lg: 1.0625rem;
+  --text-xl: 1.375rem;
+  --text-2xl: 1.875rem;
+  --text-3xl: 2.75rem;
+
+  /* motion — none is part of this product's identity */
+  --duration-fast: 0ms;
+  --duration-base: 0ms;
+  --ease: linear;
+}
+
+[data-theme='dark'] {
+  --bg: #0e1013;
+  --bg-elevated: #14171b;
+  --bg-sunken: #090b0d;
+
+  --fg: #f2f3f4;
+  --fg-muted: #a8aeb6;
+  --fg-subtle: #7b818a;
+
+  --border: #262a30;
+  --border-strong: #3a4048;
+
+  --accent: #4fc3d4;
+  --accent-hover: #7ad4e1;
+  --accent-fg: #06181c;
+  --accent-subtle: #12333a;
+
+  --ok: #6fc07d;
+  --ok-subtle: #10240f;
+  --warn: #d9a441;
+  --warn-subtle: #2b1f0a;
+  --danger: #e07a7a;
+  --danger-subtle: #2e1213;
+  --info: #4fc3d4;
+  --info-subtle: #12333a;
+
+  --shadow-1: 0 1px 0 0 rgba(0, 0, 0, 0.4);
+  --shadow-2: 0 2px 6px 0 rgba(0, 0, 0, 0.5);
+  --shadow-3: 0 8px 20px 0 rgba(0, 0, 0, 0.6);
+}

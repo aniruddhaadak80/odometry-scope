@@ -1,0 +1,64 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "odometry_scope"
+version = "0.1.0"
+description = "Deterministic engine for odometry-scope"
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "Apache-2.0" }
+authors = [{ name = "aniruddhaadak80" }]
+dependencies = []
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8",
+  "pytest-cov>=5",
+  "hypothesis>=6.100",
+  "ruff>=0.6",
+  "mypy>=1.11",
+]
+
+[project.scripts]
+odometry_scope-engine = "odometry_scope.__main__:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/odometry_scope"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+addopts = "-q --strict-markers --strict-config"
+markers = [
+  "property: property-based tests using hypothesis",
+]
+
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+# Narrow on purpose. A wide select on a new repo is a wall of noise that gets ignored.
+select = ["E", "F", "W", "B", "UP", "ASYNC", "S", "PL"]
+ignore = [
+  "E501",    # line length is the formatter's job
+  "B008",
+  "S101",    # assert is fine in tests
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["S101", "PLR2004"]
+
+[tool.mypy]
+python_version = "3.11"
+platform = "linux"   # keeps the type gate host-independent
+strict = true
+warn_unreachable = true
+mypy_path = "src"
+
+[[tool.mypy.overrides]]
+module = ["hypothesis.*"]
+ignore_missing_imports = true

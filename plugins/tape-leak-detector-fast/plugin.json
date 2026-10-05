@@ -1,0 +1,11 @@
+{
+  "name": "tape-leak-detector-fast",
+  "version": "0.1.0",
+  "description": "Subsampled tape-leak check for large runs; trades cause analysis for speed.",
+  "enabled": true,
+  "priority": 40,
+  "capabilities": ["diagnostics:tape-leak"],
+  "engines": {
+    "@odometryscope/plugins": "0.1.0"
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "baselineDrift": 0.09360000000000546,
+  "dominant": "imu",
+  "fusionInconsistency": 0.04800000000000004,
+  "sensors": [
+    {
+      "driftWithout": 4.884981308350689e-15,
+      "explainedFraction": 0.9999999999999478,
+      "sensor": "imu",
+      "verdict": "primary"
+    },
+    {
+      "driftWithout": 0.23400000000000287,
+      "explainedFraction": -1.499999999999885,
+      "sensor": "wheel",
+      "verdict": "masking"
+    }
+  ]
+}

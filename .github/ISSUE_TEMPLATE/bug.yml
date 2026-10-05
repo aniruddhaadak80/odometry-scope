@@ -1,0 +1,45 @@
+name: Bug report
+description: Something behaves incorrectly
+title: '[bug] '
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Before filing: run `odoscope doctor` and include its output. It usually names the fix.
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened
+      description: What you observed, and what you expected instead.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps to reproduce
+      value: |
+        1.
+        2.
+        3.
+    validations:
+      required: true
+  - type: textarea
+    id: doctor
+    attributes:
+      label: '`odoscope doctor` output'
+      render: shell
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      placeholder: v0.1.0
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Environment
+      placeholder: ubuntu 24.04, node 22.12.0, python 3.12.10
+    validations:
+      required: true

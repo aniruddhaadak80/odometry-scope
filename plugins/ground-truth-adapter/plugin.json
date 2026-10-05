@@ -1,0 +1,11 @@
+{
+  "name": "ground-truth-adapter",
+  "version": "0.1.0",
+  "description": "Normalises external ground-truth exports into the engine's truth channel shape.",
+  "enabled": true,
+  "priority": 60,
+  "capabilities": ["ingest:ground-truth"],
+  "engines": {
+    "@odometryscope/plugins": "0.1.0"
+  }
+}
