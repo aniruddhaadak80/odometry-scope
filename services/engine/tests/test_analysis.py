@@ -57,9 +57,7 @@ def straight_track(
 
 
 def position_of(track: dict[str, list[float]], params: IntegrationParams) -> dict[str, list[float]]:
-    integrated = integrate_track(
-        track["t"], track["v"], track["omega"], params
-    )
+    integrated = integrate_track(track["t"], track["v"], track["omega"], params)
     return {"x": integrated.xs, "y": integrated.ys, "theta": integrated.thetas}
 
 
@@ -205,6 +203,56 @@ class TestNormalize:
             normalize({"samples": [{"x": 1.0}]})
         assert caught.value.code == "MISSING_FIELD"
 
+    def test_rejects_a_later_sample_without_a_timestamp(self) -> None:
+        # The guard is per sample: a timestamp on an earlier row must not vouch for this one.
+        with pytest.raises(EngineError) as caught:
+            normalize(
+                {
+                    "samples": [
+                        {"t": 0.0, "x": 1.0, "y": 1.0},
+                        {"t": 1.0, "x": 2.0, "y": 2.0},
+                        {"x": 3.0, "y": 3.0},
+                    ]
+                }
+            )
+        assert caught.value.code == "MISSING_FIELD"
+        assert "samples[2]" in caught.value.message
+
+    def test_rejects_a_log_whose_samples_do_not_carry_the_same_fields(self) -> None:
+        # A field present in some samples and absent in others has no parallel-column
+        # representation, and used to raise an unhandled IndexError.
+        with pytest.raises(EngineError) as caught:
+            normalize(
+                {
+                    "samples": [
+                        {"t": 0.0, "theta": 10.0},
+                        {"t": 1.0},
+                        {"t": 2.0, "theta": 30.0},
+                    ]
+                }
+            )
+        assert caught.value.code == "BAD_SHAPE"
+
+    def test_rejects_a_sample_that_supplies_one_field_under_two_aliases(self) -> None:
+        with pytest.raises(EngineError) as caught:
+            normalize({"samples": [{"t": 0.0, "time": 1.0}]})
+        assert caught.value.code == "BAD_SHAPE"
+
+    def test_every_channel_has_one_entry_per_sample(self) -> None:
+        result = normalize(
+            {
+                "samples": [
+                    {"t": 0.0, "x": 1.0, "y": 1.0, "theta": 0.0},
+                    {"t": 1.0, "x": 2.0, "y": 2.0, "theta": 0.1},
+                ]
+            }
+        )
+        assert result["count"] == 2
+        for name, values in result["channels"].items():
+            # A field absent from the whole log stays absent; a field present in the log has
+            # exactly one entry per sample.
+            assert len(values) in (0, 2), name
+
     @settings(max_examples=50, deadline=None)
     @given(st.lists(st.floats(-1e3, 1e3, allow_nan=False), min_size=1, max_size=12))
     def test_the_data_result_is_order_independent(self, stamps: list[float]) -> None:
@@ -274,7 +322,10 @@ class TestIntegrate:
         assert result["substeps"] == 8
 
     def test_is_deterministic(self) -> None:
-        payload = {"channels": straight_track(count=25, speed=1.5, yaw=0.2), "params": {"substeps": 4}}
+        payload = {
+            "channels": straight_track(count=25, speed=1.5, yaw=0.2),
+            "params": {"substeps": 4},
+        }
         assert integrate(payload) == integrate(payload)
 
 
@@ -598,7 +649,9 @@ class TestClassify:
 class TestSummarize:
     def test_reports_the_operators_numbers(self) -> None:
         track = straight_track(count=20, speed=2.0, rate=10.0)
-        result = summarize({"channels": {**track, "x": [t * 2.0 for t in track["t"]], "y": [0.0] * 20}})
+        result = summarize(
+            {"channels": {**track, "x": [t * 2.0 for t in track["t"]], "y": [0.0] * 20}}
+        )
         assert result["count"] == 20
         assert result["durationS"] == pytest.approx(1.9)
         assert result["rateHz"] == pytest.approx(19 / 1.9)

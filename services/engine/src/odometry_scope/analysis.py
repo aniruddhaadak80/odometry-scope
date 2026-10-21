@@ -252,7 +252,9 @@ def _complete_channels(channels: Channels, issues: list[str]) -> Channels:
             channels["v"] = speed_series(times, channels["x"], channels["y"])
             issues.append("derived 'v' from the position columns")
         else:
-            raise EngineError("MISSING_FIELD", "cannot integrate without 'v' or an (x, y) position pair")
+            raise EngineError(
+                "MISSING_FIELD", "cannot integrate without 'v' or an (x, y) position pair"
+            )
     if not channels["omega"]:
         if channels["theta"]:
             channels["omega"] = derivative_series(times, unwrap_angle(channels["theta"]))
@@ -265,7 +267,9 @@ def _complete_channels(channels: Channels, issues: list[str]) -> Channels:
     return channels
 
 
-def _translate_onto(channels: Channels, targets: list[float]) -> tuple[list[float], list[float], list[float]]:
+def _translate_onto(
+    channels: Channels, targets: list[float]
+) -> tuple[list[float], list[float], list[float]]:
     if not channels["x"] or not channels["y"]:
         raise EngineError("MISSING_FIELD", "a reference track needs 'x' and 'y' columns")
     xs = interpolate(channels["t"], channels["x"], targets)
@@ -280,39 +284,96 @@ def _translate_onto(channels: Channels, targets: list[float]) -> tuple[list[floa
 # ------------------------------------------------------------------ operations
 
 
+def _sample_fields(sample: dict[str, Any], index: int) -> tuple[set[str], dict[str, float]]:
+    """The canonical fields one sample carries, and the value of each.
+
+    Aliases are resolved here, so a sample that supplies the same canonical field twice --
+    ``t`` and ``time`` in the same row -- is refused rather than silently doubling a column.
+    """
+    fields: set[str] = set()
+    values: dict[str, float] = {}
+    for key, value in sample.items():
+        canonical = FIELD_ALIASES.get(key.lower())
+        if canonical is None:
+            continue
+        if canonical in fields:
+            raise EngineError(
+                "BAD_SHAPE",
+                f"samples[{index}] supplies {canonical!r} more than once",
+            )
+        if isinstance(value, bool) or not isinstance(value, (int, float)):
+            raise EngineError("BAD_SHAPE", f"samples[{index}].{key} must be a number")
+        number = float(value)
+        if math.isnan(number) or math.isinf(number):
+            raise EngineError("BAD_SHAPE", f"samples[{index}].{key} must be finite")
+        fields.add(canonical)
+        values[canonical] = number
+    return fields, values
+
+
+def _require_uniform_fields(fields: set[str], expected: set[str], index: int) -> None:
+    """Refuse a sample whose field set differs from the rest of the log.
+
+    The output channels are parallel lists, so a field carried by some samples and not by
+    others cannot be represented: the values would be attributed to the wrong timestamps.
+    """
+    if fields == expected:
+        return
+    missing = sorted(expected - fields)
+    unexpected = sorted(fields - expected)
+    raise EngineError(
+        "BAD_SHAPE",
+        f"samples[{index}] does not carry the same fields as the rest of the log "
+        f"(missing: {', '.join(missing) or 'none'}; "
+        f"unexpected: {', '.join(unexpected) or 'none'})",
+    )
+
+
 def normalize(payload: Any) -> dict[str, Any]:
     """Canonicalise a recorded sample log into typed, sorted, unwrapped channels.
 
     Accepts common field aliases (``yaw`` for ``theta``, ``time`` for ``t``) so a log exported
     from a real recorder does not have to be hand-edited first. Output order depends only on
     the input, never on dict iteration order or the clock.
+
+    Every sample must carry a timestamp and the same set of canonical fields as every other
+    sample. The output channels are parallel lists, so a ragged log has no honest
+    representation: it is refused with a named error rather than silently truncated or
+    misaligned.
     """
     payload = _require_mapping(payload)
     samples = payload.get("samples")
     if not isinstance(samples, list):
         raise EngineError("BAD_SHAPE", "'samples' must be an array of sample objects")
     if len(samples) > MAX_SERIES:
-        raise EngineError("SERIES_TOO_LONG", f"'samples' has {len(samples)} entries, max {MAX_SERIES}")
+        raise EngineError(
+            "SERIES_TOO_LONG", f"'samples' has {len(samples)} entries, max {MAX_SERIES}"
+        )
 
     issues: list[str] = []
     collected: dict[str, list[float]] = {name: [] for name in CANONICAL_FIELDS}
     seen: set[str] = set()
+    # The canonical fields the *first* sample carried. Every later sample must carry the same
+    # set: the output channels are parallel lists, so a field present in some samples and
+    # absent in others cannot be represented without misattributing a value to the wrong
+    # timestamp -- or, worse, indexing past the end of the shorter column.
+    expected_fields: set[str] | None = None
     for index, sample in enumerate(samples):
         if not isinstance(sample, dict):
             raise EngineError("BAD_SHAPE", f"samples[{index}] must be an object")
-        for key, value in sample.items():
-            canonical = FIELD_ALIASES.get(key.lower())
-            if canonical is None:
-                continue
-            if isinstance(value, bool) or not isinstance(value, (int, float)):
-                raise EngineError("BAD_SHAPE", f"samples[{index}].{key} must be a number")
-            number = float(value)
-            if math.isnan(number) or math.isinf(number):
-                raise EngineError("BAD_SHAPE", f"samples[{index}].{key} must be finite")
-            collected[canonical].append(number)
-            seen.add(canonical)
-        if "t" not in seen and "time" not in seen and "stamp" not in seen:
+        fields, values = _sample_fields(sample, index)
+        # Per *sample*, not per log: the guard is about this row being timestamped, so it has to
+        # look at this row's fields only. Checking the accumulated set would let every sample
+        # after the first timestamped one through unchecked.
+        if "t" not in fields:
             raise EngineError("MISSING_FIELD", f"samples[{index}] has no timestamp field")
+        if expected_fields is None:
+            expected_fields = fields
+        else:
+            _require_uniform_fields(fields, expected_fields, index)
+        for canonical, number in values.items():
+            collected[canonical].append(number)
+        seen.update(fields)
 
     if not collected["t"]:
         raise EngineError("MISSING_FIELD", "'samples' contains no timestamped rows")
@@ -466,7 +527,9 @@ def _accumulate_envelope(series: _EnvelopeSeries, settings: _EnvelopeSettings) -
         max_observed = max(max_observed, observed)
         max_bound = max(max_bound, bound)
         sum_squares += observed * observed
-        steps.append({"t": series.times[i], "observed": observed, "bound": bound, "exceeded": exceeded})
+        steps.append(
+            {"t": series.times[i], "observed": observed, "bound": bound, "exceeded": exceeded}
+        )
 
     observed_count = max(settings.reported - 1, 0)
     return {
@@ -523,7 +586,9 @@ def divergence(payload: Any) -> EnvelopeOutput:
     reported = min(total, max_steps)
     truncated = reported < total
     if truncated:
-        issues.append(f"reported the first {reported} of {total} steps; raise params.maxSteps for all")
+        issues.append(
+            f"reported the first {reported} of {total} steps; raise params.maxSteps for all"
+        )
 
     run = _accumulate_envelope(
         _EnvelopeSeries(
