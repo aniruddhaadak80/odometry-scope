@@ -11,6 +11,17 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 - Nothing yet.
 
+### Fixed
+
+- `normalize` now checks the timestamp guard **per sample** instead of against a set accumulated
+  across the whole log. A sample with no timestamp used to be accepted whenever an earlier
+  sample had one, which silently dropped the sample's other fields and left the channels
+  misaligned.
+- `normalize` refuses a log whose samples do not carry the same set of canonical fields, and
+  refuses a sample that supplies the same field under two aliases (`t` and `time` in one row).
+  Both used to raise an unhandled `IndexError`, which surfaced to callers as an opaque
+  `INTERNAL` error instead of a named one.
+
 ## [0.1.0] - 2026-01-01
 
 ### Added
