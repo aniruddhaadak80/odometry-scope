@@ -112,3 +112,6 @@ updates:
       update-types:
       - minor
       - patch
+    codeql-action:
+      patterns:
+        - github/codeql-action/*
